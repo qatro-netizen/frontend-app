@@ -1,15 +1,14 @@
-# utils.py
 import logging
 import os
 from functools import lru_cache
 import requests
 from datetime import datetime, timedelta
+import random
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
-def get_user_agent():
-    """Returns a random User-Agent string."""
+def get_random_user_agent():
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0",
@@ -20,9 +19,13 @@ def get_user_agent():
 
 @lru_cache(maxsize=None)
 def get_ip_address():
-    """Returns an IP address from ipify.org."""
-    response = requests.get('https://api.ipify.org')
-    return response.text.strip()
+    try:
+        response = requests.get('https://api.ipify.org')
+        response.raise_for_status()
+        return response.text.strip()
+    except requests.RequestException as e:
+        logging.error(f"Error getting IP address: {e}")
+        return None
 
 def get_current_timestamp():
     """Returns the current timestamp."""
